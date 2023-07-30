@@ -78,7 +78,7 @@ def test():
     reluType = ['cart']
     NUM_CLASS = 6
     signal = True
-    inp_shape = (288, 1)
+    inp_shape = (1, 288)
     emb_size = 64
     for reluType in modelTypes:
         model = create_model(reluType, inp_shape, NUM_CLASS, emb_size, classification=True)
