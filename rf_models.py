@@ -28,21 +28,34 @@ class ComplexAverageCrossEntropy(Loss):
         return (real_loss + imag_loss) / 2
 
 
+
 def createSB_cart(inp_shape, classes_num=6, emb_size=64, weight_decay=1e-4, classification=False):
 
-    tf.device("gpu:1")
+    filter_num = ['None', 32, 64, 128, 256]
+    kernel_size = ['None', 2, 2, 2, 2]
+    conv_stride_size = ['None', 2, 2, 2, 2]
+    pool_stride_size = ['None', 1, 1, 1, 1]
+    pool_size = ['None', 2, 2, 2, 2]
+
     model = tf.keras.models.Sequential()
-    model.add(complex_layers.ComplexInput(input_shape=inp_shape))
-    model.add(complex_layers.ComplexConv1D(32, 2, activation='crelu', padding='same'))
-    model.add(complex_layers.ComplexAvgPooling1D(2))
-    model.add(complex_layers.ComplexConv1D(64, 2, activation='crelu', padding='same'))
-    model.add(complex_layers.ComplexAvgPooling1D(2))
-    model.add(complex_layers.ComplexConv1D(128, 2, activation='crelu', padding='same'))
-    model.add(complex_layers.ComplexAvgPooling1D(2))
-    model.add(complex_layers.ComplexConv1D(256, 2, activation='crelu', padding='same'))
-    model.add(complex_layers.ComplexAvgPooling1D(2))
+    model.add(complex_layers.ComplexInput(inp_shape, dtype='complex64'))
+    model.add(complex_layers.ComplexConv1D(filter_num[1], kernel_size[1], strides=conv_stride_size[1], activation='crelu', padding='same'))
+    model.add(complex_layers.ComplexAvgPooling1D(pool_size[1], strides=pool_stride_size[1]))
+
+    model.add(complex_layers.ComplexConv1D(filter_num[2], kernel_size[2], strides=conv_stride_size[2], activation='crelu', padding='same'))
+    model.add(complex_layers.ComplexAvgPooling1D(pool_size[2], strides=pool_stride_size[2]))
+
+    model.add(complex_layers.ComplexConv1D(filter_num[3], kernel_size[3], strides=conv_stride_size[3], activation='crelu', padding='same'))
+    model.add(complex_layers.ComplexAvgPooling1D(pool_size[3], strides=pool_stride_size[3]))
+
+    model.add(complex_layers.ComplexConv1D(filter_num[4], kernel_size[4], strides=conv_stride_size[4], activation='crelu', padding='same'))
+    model.add(complex_layers.ComplexAvgPooling1D(pool_size[4], strides=pool_stride_size[4]))
+
+    # Add more convolutional layers if desired
+    model.add(complex_layers.ComplexConv1D(filter_num[4], kernel_size[4], strides=conv_stride_size[4], activation='crelu', padding='same'))
+    model.add(complex_layers.ComplexAvgPooling1D(pool_size[4], strides=pool_stride_size[4]))
+
     model.add(complex_layers.ComplexFlatten())
-    #model.add(complex_layers.ComplexDropout(0.5))
 
     if classification:
         model.add(complex_layers.ComplexDense(classes_num, activation='softmax_real_with_abs'))
@@ -50,17 +63,6 @@ def createSB_cart(inp_shape, classes_num=6, emb_size=64, weight_decay=1e-4, clas
         model.add(complex_layers.ComplexDense(emb_size, activation='linear',
                                               kernel_regularizer=tf.keras.regularizers.l2(weight_decay),
                                               bias_regularizer=tf.keras.regularizers.l2(weight_decay)))
-
-    return model
-
-
-def create_model(reluType, inp_shape, NUM_CLASS, emb_size, classification):
-    print("model type: {}".format(reluType))
-    if 'complex' == reluType:
-        model = createSB_cart(inp_shape, NUM_CLASS, emb_size, classification=classification)
-
-    else:
-        raise ValueError('model type {} not support yet'.format(reluType))
 
     return model
 
