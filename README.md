@@ -12,4 +12,3 @@ Run triplet_training.py to train the triplet network model with the same-locatio
 Run triplet_test.py to test the triplet network model with cross-location data.
 # Device Rank
 To get the device rank of the model, run rank.py. 
-
